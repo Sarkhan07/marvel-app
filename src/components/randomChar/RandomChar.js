@@ -26,19 +26,26 @@ class RandomChar extends Component {
         this.setState({ char, loading: false }); // {char: char} коротко так {char}
     };
 
+    onCharLoading = () => {
+        this.setState({
+            loading: true,
+        });
+    };
+
+    onError = () => {
+        this.setState({ loading: false, error: true });
+    };
+
     updateChar = () => {
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
         // this.marvelService.getAllCharacters().then((res) => console.log(res));
+        this.onCharLoading();
 
         this.marvelService
             .getCharacter(id)
             .then(this.onCharLoaded) // then когда передается функция
             //то res сразу передается как аргумент
             .catch(this.onError);
-    };
-
-    onError = () => {
-        this.setState({ loading: false, error: true });
     };
 
     render() {
