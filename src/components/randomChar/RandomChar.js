@@ -1,59 +1,55 @@
+import {useState, useEffect} from 'react';
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
-
 import MarvelService from '../../services/MarvelService';
 import ErrorMessage from '../errorMessage/errorMessage';
 import Spinner from '../spinner/spinner';
 
-import { Component } from 'react';
 
-class RandomChar extends Component {
-    state = {
-        char: {},
-        loading: true,
-        error: false,
-    };
+const RandomChar = () => {
 
-    marvelService = new MarvelService();
+    const [char, setChar] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
-    componentDidMount() {
-        this.updateChar();
+    const marvelService = new MarvelService();
+
+    useEffect(() => {
+        updateChar();
+        const timerId = setInterval(updateChar, 60000);
+
+        return () => {
+            clearInterval(timerId)
+        }
+    }, [])
+
+    const onCharLoaded = (char) => {
+        setLoading(false);
+        setChar(char);
     }
 
-    // componentWillUnmount() {}
+    const onCharLoading = () => {
+        setLoading(true);
+    }
 
-    onCharLoaded = (char) => {
-        this.setState({ char, loading: false }); // {char: char} коротко так {char}
-    };
+    const onError = () => {
+        setError(true);
+        setLoading(false);
+    }
 
-    onCharLoading = () => {
-        this.setState({
-            loading: true,
-        });
-    };
-
-    onError = () => {
-        this.setState({ loading: false, error: true });
-    };
-
-    updateChar = () => {
+    const updateChar = () => {
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        // this.marvelService.getAllCharacters().then((res) => console.log(res));
-        this.onCharLoading();
-
-        this.marvelService
+        onCharLoading();
+        marvelService
             .getCharacter(id)
-            .then(this.onCharLoaded) // then когда передается функция
+            .then(onCharLoaded) // then когда передается функция
             //то res сразу передается как аргумент
-            .catch(this.onError);
+            .catch(onError);
     };
-
-    render() {
-        const { char, loading, error } = this.state;
+       
         const errorMessage = error ? <ErrorMessage /> : null;
-
         const spinner = loading ? <Spinner /> : null;
-        const content = !(loading || error) ? <View char={char} /> : null;
+        const content = !(loading || error || !char) ? <View char={char} /> : null;
         // {loading ? <Spinner /> : <View char={char} />} it was inside return and we replace with stronger logical operation
         return (
             <div className="randomchar">
@@ -68,7 +64,7 @@ class RandomChar extends Component {
                     </p>
                     <p className="randomchar__title">Or choose another one</p>
                     <button className="button button__main">
-                        <div className="inner" onClick={this.updateChar}>
+                        <div className="inner" onClick={updateChar}>
                             try it
                         </div>
                     </button>
@@ -80,7 +76,6 @@ class RandomChar extends Component {
                 </div>
             </div>
         );
-    }
 }
 
 const View = ({ char }) => {
