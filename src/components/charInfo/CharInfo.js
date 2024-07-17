@@ -16,10 +16,6 @@ const CharInfo = (props) => {
 
     const marvelService = new MarvelService();
 
-    useEffect(() => {
-        updateChar()
-    }, [props.charId])
-
     const updateChar = () => {
         const {charId} = props;
         if (!charId) {
@@ -30,6 +26,12 @@ const CharInfo = (props) => {
             .then(onCharLoaded)
             .catch(onError)
     }
+
+    
+    useEffect(() => {
+        updateChar()
+    }, [props.charId])
+
 
     const onCharLoaded = (char) => {
         setLoading(false);
